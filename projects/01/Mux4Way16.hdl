@@ -1,0 +1,83 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux4Way16.hdl
+
+/**
+ * 4-way 16-bit multiplexor:
+ * out = a if sel == 00
+ *       b if sel == 01
+ *       c if sel == 10
+ *       d if sel == 11
+ */
+
+/*
+
+How to have figured out.
+
+Consider that we already have a Mux.
+We can already pick between two numbers.
+Now we need to pick between two pairs of two numbers.
+You need to Mux your Mux.
+
+Sel0	Sel1	a	b	c	d	Out
+0	0	1				1
+0	1		1			1
+1	0			1		1
+1	1				1	1
+
+
+Next time:
+
+- Define problem - first principles: ask questions / Use critical thinking skills
+- Outline resources
+- Try various ways of solving
+
+
+*/
+
+CHIP Mux4Way16 {
+    IN a[16], b[16], c[16], d[16], sel[2];
+    OUT out[16];
+
+    PARTS:
+	//Muxes
+	/*
+	 * 
+	out = a if sel == 00
+ *       b if sel == 01
+ *       c if sel == 10
+ *       d if sel == 11
+
+	Prob is we cant diff b and d with sel[1]
+	So both a/c, b/d have diff sel[0]
+	Then we need a 3rd thing to choose the sel[1]
+	If sel[1] is a 0, a or c
+	If sel[1] is a 1, b or d
+
+	NOTE: indexed from rightmost (0 is rightmost)
+
+	We use the first bit to get a,b,c,d
+	We use the second bit to pick a or c, b or d
+
+	The first bit is different for a/c and b/d
+	The second bit is different for a/c and b/d
+
+	We get the possible value for each pair, and then we
+	select which pair to use.
+
+	Steps:
+	We select FROM each pair
+	We then select WHICH pair
+
+	*/
+	//Pick from pair: a & c
+	Mux16(a=a, b=c, sel=sel[1], out=mux1);
+	//Pick from pair: b & d
+	Mux16(a=b, b=d, sel=sel[1], out=mux2);
+
+	//Pick which pair
+	Mux16(a=mux1, b=mux2, sel=sel[0], out=out);
+
+
+}

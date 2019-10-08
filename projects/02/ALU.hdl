@@ -1,0 +1,103 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/ALU.hdl
+
+/**
+ * The ALU (Arithmetic Logic Unit).
+ * Computes one of the following functions:
+ * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
+ * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * In addition, the ALU computes two 1-bit outputs:
+ * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
+ * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+ */
+
+// Implementation: the ALU logic manipulates the x and y inputs
+// and operates on the resulting values, as follows:
+// if (zx == 1) set x = 0        // 16-bit constant
+// if (nx == 1) set x = !x       // bitwise not
+// if (zy == 1) set y = 0        // 16-bit constant
+// if (ny == 1) set y = !y       // bitwise not
+// if (f == 1)  set out = x + y  // integer 2's complement addition
+// if (f == 0)  set out = x & y  // bitwise and
+// if (no == 1) set out = !out   // bitwise not
+// if (out == 0) set zr = 1
+// if (out < 0) set ng = 1
+
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute out = x + y (if 1) or x & y (if 0)
+        no; // negate the out output?
+
+    OUT 
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+
+    PARTS:
+   // Put you code here:
+   //Could use the 4way mux?
+	//Could do a gate/circuit for each x,y,etc then select with the mux
+   
+	//X Modifications
+
+	//zx	nx	out
+	//0	0	x
+	//0	1	!x
+	//1	0	0
+	//1	1	1
+
+		Not16(in=x, out=notX);
+	
+		//Select:	- which way sel? 1 or 0? Right to left?
+		Mux4Way16(a=x, b=notX, c=false, d=true, sel[1]=zx, sel[0]=nx, out=xOut);
+   
+	//Y Modifications
+
+		Not16(in=y, out=notY);
+
+		//Select
+   		Mux4Way16(a=y, b=notY, c=false, d=true, sel[1]=zy, sel[0]=ny, out=yOut);
+
+
+	//Now what? Take the x/y in
+	Add16(a=xOut, b=yOut, out=xPLUSy);
+	And16(a=xOut, b=yOut, out=xANDy);
+
+	Mux16(a=xANDy, b=xPLUSy, sel=f, out=processedOut);
+
+	Not16(in=processedOut, out=notProcessedOut);
+	Mux16(a=processedOut, b=notProcessedOut, sel=no, out=out,
+							out[15]=outFirstIndex,
+							out[0..7]=out1,
+							out[8..15]=out2);
+
+	//Negative?
+	Or(a=outFirstIndex, b=false, out=ng);
+
+	//Equal to Zero? - How to get 16 down to 1?
+		//If each index == 0, output one 1
+			//Internal bus needs to be same size as used
+	Or8Way(in=out1, out=notZero1);
+	Or8Way(in=out2, out=notZero2);
+	Or(a=notZero1, b=notZero2, out=notZero);
+	Not(in=notZero, out=zr);
+
+
+//I used 14 gates. One interesting Q: how to avoid calculation cost of an unused function?
+	//We calculate x and y AND x plus y before knowing which to use
+
+//TODO:
+	// How does the original NAND work? How do some of each individual gates work?
+		// Trace through one function
+	// Go through one function and convince myself it works
+	// Why does the minus work? (Two's complement, binary tricks, etc.)
+	// Why do some combinations give x + y?
+}

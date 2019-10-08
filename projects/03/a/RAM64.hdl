@@ -1,0 +1,99 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/RAM64.hdl
+
+/**
+ * Memory of 64 registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+CHIP RAM64 {
+    IN in[16], load, address[6];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+//Completely misunderstood. RAM 8 and RAM 8 is only RAM 16.
+
+//Ahhh, so we can select based upon right half of address
+	//Each digit of right hand has a corresponding set
+	//of combinations:
+		//XXX001
+		//XXX010
+
+		//001 and 010 both have a set of XXX
+		//like a key, the 010 can address XXX
+
+	//if sel==000, a=load, all others=0
+	DMux8Way(in=load, sel=address[0..2], a=load1, b=load2, c=load3,
+		d=load4, e=load5, f=load6, g=load7, h=load8);
+
+	RAM8(in=in, load=load1, address=address[3..5], out=out1);
+	RAM8(in=in, load=load2, address=address[3..5], out=out2);
+	RAM8(in=in, load=load3, address=address[3..5], out=out3);
+	RAM8(in=in, load=load4, address=address[3..5], out=out4);
+	RAM8(in=in, load=load5, address=address[3..5], out=out5);
+	RAM8(in=in, load=load6, address=address[3..5], out=out6);
+	RAM8(in=in, load=load7, address=address[3..5], out=out7);
+	RAM8(in=in, load=load8, address=address[3..5], out=out8);
+
+	Mux8Way16(a=out1, b=out2, c=out3, d=out4, e=out5, f=out6,
+		g=out7, h=out8, sel=address[0..2], out=out);
+
+
+/*
+
+
+000,100 - what rule uses Right? notAllLeft
+
+100,000 - what rule uses left? notAllRight
+
+What rule combines both? That's the problem. How to pick when
+you use each rule, otherwise everything excluded?
+
+notAllRight AND anyLeft:
+
+100,000 = use left, 100
+
+101,000 = use left, 101
+
+000,000 = neither (0) = default to X (default to side that cant 000)
+				(which is: right)
+
+//Current Output:
+
+41 same as 47
+101,001 same as 101,111
+Why?
+
+notAllRight(0) AND anyLeft(1) == 0, = a, use left side,
+		but should be using the right side.
+			Why? Because left side same.
+
+So what if left sides of address same? HOw would you know?
+
+The problem is the registers are getting loaded ANYWAY.
+
+If 001,011
+If 001,010
+
+We are still overriding the left register. SO even if we select
+it correctly, the 001 was overridden.
+
+We need to select BEFORE loading the registers/rams.
+
+///////////////////////
+
+What can I learn from this?
+
+- Basic premise was faulty
+- - Step back and question your assumptions
+- - Question your assumptions
+
+*/
+
+	
+}

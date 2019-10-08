@@ -1,0 +1,109 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/RAM8.hdl
+
+/**
+ * Memory of 8 registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+/*
+
+Need to channel the load to the Register based upon the address.
+Need to channel the Register to out based upon the address.
+
+Need a selector to go to the Register and a selector to go from the Register.
+
+*/
+
+CHIP RAM8 {
+    IN in[16], load, address[3];
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+
+	//Need selector to channel loads
+		//E.g., if addr==000, load0 = 1, all other loads = 0
+	
+
+	Not(in=address[2], out=notAddr2);
+	Not(in=address[1], out=notAddr1);
+	Not(in=address[0], out=notAddr0);
+
+	/* The write -> RAM selector */
+
+	//load0 - l0	1	addr	0	0	0
+	And(a=notAddr2, b=notAddr1, out=l0And);
+	And(a=notAddr0, b=l0And, out=l0And1);
+	And(a=l0And1, b=load, out=load0);	//Only load Register 0 if load is 1 and address is 000
+
+	//load1 - l1	1	addr	0	0	1
+	And(a=notAddr2, b=notAddr1, out=l1And);
+	And(a=l1And, b=address[0], out=l1And1);
+	And(a=l1And1, b=load, out=load1);
+
+	//REALISATION: don't take credit for solving the problem, simply set yourself
+		//up to solve it by critical thinking/breaking ti down, providing
+		//the materials. Same way you provide your body with protein and IT
+		//heals you
+			//I didn't consciously figure out above, but subconsciously,
+			//once I laid out the relevant info
+
+				//I ONLY FIGURED THIS OUT WHEN I WROTE OUT THE ACTUAL
+				//BOOLEAN VALUES I NEEDED!!! I CRITICALLY LAID OUT
+				//THE COMPONENTS OF THE PROBLEM - THE REALITY
+
+	//load1 - l2	1	addr	0	1	0
+	And(a=notAddr2, b=notAddr0, out=l2And);
+	And(a=l2And, b=address[1], out=l2And1);
+	And(a=l2And1, b=load, out=load2);
+
+	//load3 - l3	1	addr	0	1	1
+	And(a=notAddr2, b=address[1], out=l3And);
+	And(a=l3And, b=address[0], out=l3And1);
+	And(a=l3And1, b=load, out=load3);
+
+	//load4 - l4	1	addr	1	0	0
+	And(a=address[2], b=notAddr1, out=l4And);
+	And(a=l4And, b=notAddr0, out=l4And1);
+	And(a=l4And1, b=load, out=load4);
+
+	//load5 - l5	1	addr	1	0	1
+	And(a=address[0], b=address[2], out=l5And);
+	And(a=l5And, b=notAddr1, out=l5And1);
+	And(a=l5And1, b=load, out=load5);
+
+	//load6 - l6	1	addr	1	1	0
+	And(a=address[2], b=address[1], out=l6And);
+	And(a=l6And, b=notAddr0, out=l6And1);
+	And(a=l6And1, b=load, out=load6);
+
+	//load7 - l7	1	addr	1	1	1
+	And(a=address[2], b=address[1], out=l7And);
+	And(a=l7And, b=address[0], out=l7And1);
+	And(a=l7And1, b=load, out=load7);
+
+		
+	//The RAM Array
+
+	Register(in=in, load=load0, out=out0);
+	Register(in=in, load=load1, out=out1);
+	Register(in=in, load=load2, out=out2);
+	Register(in=in, load=load3, out=out3);
+	Register(in=in, load=load4, out=out4);
+	Register(in=in, load=load5, out=out5);
+	Register(in=in, load=load6, out=out6);
+	Register(in=in, load=load7, out=out7);
+
+	//Need selector to channel outs
+		//E.g., if addr==000, out=out0
+
+	/* The RAM -> Output Selector */
+
+	Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address, out=out);
+
+}
