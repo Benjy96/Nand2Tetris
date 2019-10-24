@@ -12,3 +12,15 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+/*
+
+Pseudocode to turn the screen black when a key is pressed on the keyboard:
+
+Loop
+	Set addr = Keyboard Register
+	If Register != 0:
+		iterations = 0
+		Loop while (addr of screen register MAX) > iterations:
+			set current screen register to 1
+			count++
+*/
