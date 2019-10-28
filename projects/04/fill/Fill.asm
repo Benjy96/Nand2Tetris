@@ -1,8 +1,3 @@
-@8192
-D=A
-@numScreenRegisters	//Number of draw loop iterations required
-M=D		
-
 //could just iterate around constantly, and each loop detect keyboard, and depending on that,
 //set next register white or black
 
