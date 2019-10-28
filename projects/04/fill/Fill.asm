@@ -1,17 +1,25 @@
+@8192
+D=A
+@numScreenRegisters	//Number of draw loop iterations required
+M=D		
+
 (SCAN_LOOP)
 	@KBD
 	D=M
-	
+
 	//TODO here: Loop to set white if not pressed
 
 	//if keyboard not pressed, scan again, else continue to draw loop and fill screen 
 	@SCAN_LOOP
-	D;JEQ			
+	D;JEQ	
 
-	@8192
-	D=A
-	@numScreenRegisters	//Number of draw loop iterations required
-	M=D			
+	//If already drawing, skip initialisation of loop counters
+	@iteration
+	D=M
+	@numScreenRegisters
+	D=M-D		//D = numScreenRegisters - iteration
+	@DRAW_LOOP	
+	D;JGT		
 
 	@iteration
 	M=0			
@@ -62,17 +70,6 @@
 			M=M+1
 			D=M
 
-			//If not filled screen yet, continue loop
-			@numScreenRegisters
-			D=M-D		//D = numScreenRegisters - iteration
-			@SCAN_LOOP	//If iterated through all registers, exit draw loop
-			D;JEQ
-
-			@DRAW_LOOP
-			0;JMP		//Continue filling screen
-		
-
-
-
-
-
+			//Scan again
+			@SCAN_LOOP
+			0;JMP
