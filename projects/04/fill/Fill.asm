@@ -8,7 +8,7 @@
 	@SCAN_LOOP
 	D;JEQ			
 
-	@8191
+	@8192
 	D=A
 	@numScreenRegisters	//Number of draw loop iterations required
 	M=D			
