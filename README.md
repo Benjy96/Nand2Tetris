@@ -23,4 +23,8 @@ All the gates/parts are implemented using HDL - Hardware Description Language. E
 
 # Running the .HDL Files, which demonstrate logic gate / PC component behaviour
 
-The .hdl files found under /projects are openable in the HardwareSimulator file found under the tools directory.
+The .hdl files found under /projects (weeks 00-03: logic gates) are openable in the HardwareSimulator file found under the /tools directory. Week 04's projects (Fill/Mult) are opened in the CPUEmulator, which looks like this:
+
+![CPUEmulator](https://user-images.githubusercontent.com/17323746/67714539-00903a80-f9c0-11e9-9f07-23a435c61a8f.png)
+
+The above image shows the CPUEmulator running my screen filling HACK assembly program. To repeat what you see, open /tools/CPUEmulator. Once the tool is open, click the file icon and load in /projects/04/fill/Fill.asm. Once that file is loaded, select "No animation" and then click the two blue arrows. Press a button, and the screen will fill!
